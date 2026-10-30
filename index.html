@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Segurança · Demo</title>
+<style>
+:root{--bg:#0a1020;--card:#121b2e;--card2:#16223a;--line:#22304a;--txt:#e6ecf5;--mut:#8b9ab5;--pri:#3b82f6;--ok:#22c55e;--warn:#eab308;--bad:#ef4444;--hi:#f97316;--info:#94a3b8;--pur:#a855f7;--cy:#06b6d4}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--txt)}
+button,input,select{font:inherit}.hidden{display:none!important}
+.center{min-height:100vh;display:grid;place-items:center;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.login{width:380px;max-width:100%;padding:26px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:14px;margin:0 0 12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.mut{color:var(--mut);font-size:13px}
+label{display:block;font-size:12px;margin:12px 0 4px;color:var(--mut)}
+input,select{width:100%;padding:9px 10px;background:#0a1020;border:1px solid var(--line);border-radius:8px;color:var(--txt)}
+input:focus,select:focus{outline:2px solid var(--pri);border-color:transparent}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;width:100%;margin-top:16px;font-weight:600}
+.btn.sec{background:transparent;border:1px solid var(--line);color:var(--txt);width:auto;margin:0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;color:var(--pri);cursor:pointer;padding:0;margin-top:12px;font-size:13px}
+.msg{padding:10px;border-radius:8px;font-size:13px;margin-top:12px}
+.msg.err{background:#3b1517;color:#fca5a5}.msg.ok{background:#12301f;color:#86efac}.msg.warn{background:#3a2f0b;color:#fde68a}
+.pw{position:relative}.pw button{position:absolute;right:6px;top:5px;background:none;border:0;color:var(--mut);cursor:pointer;padding:4px 8px}
+.otp{display:flex;gap:8px;justify-content:center;margin-top:16px}.otp input{width:44px;text-align:center;font-size:20px;padding:10px 0}
+.steps{display:flex;gap:6px;margin-bottom:16px}.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps i.on{background:var(--pri)}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+aside{background:#0d1526;border-right:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:4px}
+aside .logo{font-weight:700;margin-bottom:14px}
+aside a{padding:10px;border-radius:8px;color:var(--mut);cursor:pointer;font-size:14px;display:flex;gap:8px;align-items:center}
+aside a.on,aside a:hover{background:var(--card);color:var(--txt)}
+main{padding:20px;overflow:auto;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.user{font-size:13px;color:var(--mut);display:flex;gap:10px;align-items:center}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:16px;padding:12px 14px}
+.bar>div{min-width:140px}.bar label{margin-top:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg span{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--mut);background:#0a1020}.seg span.on{background:var(--pri);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+.kpi .l{color:var(--mut);font-size:12px}.kpi b{display:block;font-size:28px;margin:4px 0}
+.delta{font-size:12px;font-weight:600}.up{color:var(--bad)}.down{color:var(--ok)}.flat{color:var(--mut)}
+.g{display:grid;gap:12px;margin-bottom:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g21{grid-template-columns:2fr 1fr}.g12{grid-template-columns:1fr 2fr}
+@media(max-width:1000px){.g2,.g3,.g21,.g12{grid-template-columns:1fr}.app{grid-template-columns:1fr}aside{flex-direction:row;overflow:auto}}
+svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:10px}
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mut)}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.hb{margin:9px 0}.hb .t{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}.hb .t span:last-child{color:var(--mut)}
+.hb .tr{background:var(--line);border-radius:5px;height:9px}.hb .tr div{height:9px;border-radius:5px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:500}
+.b{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;color:#111}
+.critica{background:var(--bad)}.alta{background:var(--hi)}.media{background:var(--warn)}.baixa{background:#60a5fa}
+.gauge-wrap{text-align:center}.gauge-wrap .big{font-size:38px;font-weight:700;margin-top:-52px;position:relative}
+.skel{height:80px;border-radius:12px;background:linear-gradient(90deg,#16223a,#22304a,#16223a);background-size:200%;animation:s 1.2s infinite}@keyframes s{to{background-position:-200%}}
+.guide{position:fixed;left:12px;bottom:12px;font-size:12px;background:#0d1526;border:1px solid var(--line);padding:8px 12px;border-radius:8px;max-width:280px;z-index:9;color:var(--mut)}.guide b{color:var(--txt)}
+.toast{position:fixed;bottom:16px;right:16px;z-index:10}
+.tip{position:fixed;background:#000c;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;pointer-events:none;z-index:20;white-space:nowrap}
+.heat{display:grid;grid-template-columns:34px repeat(24,1fr);gap:2px;font-size:10px;color:var(--mut)}.heat div{aspect-ratio:1;border-radius:3px}.heat .h{aspect-ratio:auto;text-align:center}.heat .d{aspect-ratio:auto;display:flex;align-items:center}
+</style>
+</head>
+<body>
+<div class="guide" id="guide"></div>
+<div class="tip hidden" id="tip"></div>
+
+<div id="v-login" class="center"><div class="card login">
+  <div class="steps"><i class="on"></i><i></i><i></i></div>
+  <h1>🛡️ Painel de Segurança</h1><div class="mut">Acesso restrito. Não há cadastro público.</div>
+  <form id="f-login">
+    <label>E-mail</label><input id="email" type="email" placeholder="voce@empresa.com" required>
+    <label>Senha</label><div class="pw"><input id="pass" type="password" required minlength="12" placeholder="mínimo 12 caracteres"><button type="button" id="eye">mostrar</button></div>
+    <div id="login-msg"></div><button class="btn" id="btn-login">Entrar</button>
+  </form>
+  <button class="link" id="forgot">Esqueci minha senha</button>
+  <div class="mut" style="margin-top:12px">Demo: <code>admin@demo.com</code> ou <code>analista@demo.com</code><br>Senha <code>SenhaForte#2026</code> · MFA <code>123456</code></div>
+</div></div>
+
+<div id="v-forgot" class="center hidden"><div class="card login">
+  <h1>Redefinir senha</h1><div class="mut">Enviaremos um link se o e-mail existir.</div>
+  <label>E-mail</label><input type="email" placeholder="voce@empresa.com"><div id="forgot-msg"></div>
+  <button class="btn" id="send-reset">Enviar link</button><button class="link" data-go="login">Voltar ao login</button>
+</div></div>
+
+<div id="v-mfa" class="center hidden"><div class="card login">
+  <div class="steps"><i class="on"></i><i class="on"></i><i></i></div>
+  <h1>Verificação em duas etapas</h1><div class="mut">Digite o código de 6 dígitos do app autenticador.</div>
+  <div class="otp" id="otp"></div><div id="mfa-msg"></div>
+  <button class="btn" id="btn-mfa" disabled>Verificar</button><button class="link" data-go="login">Cancelar</button>
+</div></div>
+
+<div id="v-app" class="app hidden">
+  <aside>
+    <div class="logo">🛡️ SOC Painel</div>
+    <a data-src="acronis">🔒 Acronis</a>
+    <a data-src="zoho">🎫 Zoho Desk</a>
+    <a data-src="zabbix">📡 Zabbix</a>
+    <div style="flex:1"></div><div class="mut" id="timer"></div>
+  </aside>
+  <main>
+    <div class="top"><h1 id="title"></h1><div class="user"><span id="who"></span><button class="btn sec" id="logout">Sair</button></div></div>
+    <div id="expire" class="msg warn hidden" style="margin:0 0 12px">Sessão expira em <b id="sec"></b>s. <button class="link" id="renew" style="margin:0">Continuar conectado</button></div>
+    <div class="card bar">
+      <div><label>Período</label><select id="period">
+        <option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option>
+        <option value="month">Mês atual</option><option value="lastmonth">Mês anterior</option><option value="custom">Personalizado</option></select></div>
+      <div class="cust hidden"><label>De</label><input type="date" id="d1"></div>
+      <div class="cust hidden"><label>Até</label><input type="date" id="d2"></div>
+      <div id="dcbox"><label>Datacenter</label><div class="seg" id="dc"><span data-v="all" class="on">Todos</span><span data-v="br01">BR01</span><span data-v="br02">BR02</span></div></div>
+      <div><label>Modo</label><div class="seg" id="mode"><span data-v="auto" class="on">Auto</span><span data-v="rt">Tempo real</span><span data-v="d1">D-1</span></div></div>
+      <div><button class="btn sec" id="refresh">↻ Atualizar</button></div>
+      <div class="mut" id="range" style="margin-left:auto"></div>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- util ---------- */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const DAY=864e5,NOW=new Date();
+const C={critica:'#ef4444',alta:'#f97316',media:'#eab308',baixa:'#60a5fa',pri:'#3b82f6',ok:'#22c55e',pur:'#a855f7',cy:'#06b6d4',gray:'#475569'};
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(20261030),ri=(a,b)=>Math.floor(R()*(b-a+1))+a,pick=a=>a[Math.floor(R()*a.length)];
+const wpick=(items,w)=>{let t=R()*w.reduce((a,b)=>a+b,0);for(let i=0;i<items.length;i++){t-=w[i];if(t<=0)return items[i]}return items[0]};
+const sod=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const fd=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const SEVS=['critica','alta','media','baixa'];
+const sum=a=>a.reduce((x,y)=>x+y,0),avg=a=>a.length?sum(a)/a.length:0;
+const fmtMin=m=>m>=60?Math.floor(m/60)+'h '+Math.round(m%60)+'min':Math.round(m)+'min';
+
+/* ---------- dados mock (180 dias) ---------- */
+const CLIENTS=['Alfa Logística','Beta Saúde','Gama Educação','Delta Varejo','Épsilon Energia','Zeta Finanças'];
+const DEVICES=Array.from({length:28},(_,i)=>(['SRV-AD','SRV-FS','SRV-DB','SRV-APP','NB-FIN','NB-RH','SRV-WEB','SRV-BKP'][i%8])+'-'+String(i+1).padStart(2,'0'));
+const ATYPES=['Malware detectado','Ransomware bloqueado','Falha de backup','Agente desconectado','Vulnerabilidade crítica','Tráfego suspeito','Patch pendente'];
+const AC={inc:[],bk:[],score:{br01:[],br02:[]}};
+for(let d=0;d<180;d++){const day=new Date(NOW-d*DAY);
+ ['br01','br02'].forEach(dc=>{const n=ri(2,9);for(let i=0;i<n;i++)AC.inc.push({t:new Date(day-ri(0,86399)*1e3),dc,sev:wpick(SEVS,[1,3,5,6]),type:wpick(ATYPES,[4,1,5,3,3,3,4]),dev:pick(DEVICES),client:pick(CLIENTS),open:R()<.35});
+  const tot=ri(30,38);AC.bk.push({t:sod(day),dc,ok:tot-ri(0,4),fail:ri(0,4)})})}
+['br01','br02'].forEach(dc=>{let s=dc==='br01'?610:560;for(let m=5;m>=0;m--){s=Math.max(300,Math.min(840,s+ri(-30,45)));AC.score[dc].push({m:(NOW.getMonth()-m+12)%12,v:s})}});
+const CFCAT=[['Anti-malware',.9],['Backup',.85],['Firewall',.55],['VPN',.4],['Criptografia de disco',.7],['Tráfego NTLM',.6]];
+const ZH={t:[]};
+for(let d=0;d<200;d++){const day=new Date(NOW-d*DAY),n=ri(4,12)+(d<30?2:0);
+ for(let i=0;i<n;i++){const cr=new Date(day-ri(0,86399)*1e3);const age=d<12?R()<.45:R()<.08;const dur=ri(1,9)*DAY*(R()<.2?2:1);
+  ZH.t.push({id:'#'+(10000+ZH.t.length),cr,cl:age?null:new Date(Math.min(+NOW,+cr+dur)),pri:wpick(['Urgente','Alta','Média','Baixa'],[1,3,6,5]),client:pick(CLIENTS),subj:pick(['Lentidão no ERP','Acesso VPN','Backup sem retorno','Troca de senha','E-mail bloqueado','Impressora offline','Alerta de antivírus','Novo usuário'])})}}
+const ZB={hosts:Array.from({length:30},(_,i)=>(['fw','sw-core','srv-erp','srv-db','ap-wifi','link-mpls'][i%6])+'-'+String(i+1).padStart(2,'0')),p:[]};
+for(let d=0;d<180;d++){const day=new Date(NOW-d*DAY),n=ri(3,10);for(let i=0;i<n;i++){const h=wpick(ZB.hosts,ZB.hosts.map((_,k)=>k<6?8:k<12?3:1));
+ const st=new Date(day-ri(0,86399)*1e3);ZB.p.push({st,h,sev:wpick(SEVS,[1,2,4,3]),dur:wpick([ri(2,15),ri(15,90),ri(90,400)],[6,3,1]),down:R()<.6})}}
+
+/* ---------- gráficos SVG ---------- */
+const tipEl=()=>$('#tip');
+document.addEventListener('mousemove',e=>{const t=e.target.closest('[data-tip]'),tp=tipEl();
+ if(t){tp.textContent=t.dataset.tip;tp.style.left=e.clientX+12+'px';tp.style.top=e.clientY+12+'px';tp.classList.remove('hidden')}else tp.classList.add('hidden')});
+function donut(items,center){const tot=sum(items.map(i=>i.v))||1;let a=-Math.PI/2,out='';const r=60,cx=80,cy=80,w=22;
+ items.forEach(i=>{if(!i.v)return;const f=i.v/tot,b=a+f*2*Math.PI-(f>=.999?.001:0);
+  const p=x=>[cx+r*Math.cos(x),cy+r*Math.sin(x)],[x1,y1]=p(a),[x2,y2]=p(b);
+  out+=`<path data-tip="${i.l}: ${i.v} (${Math.round(f*100)}%)" d="M${x1} ${y1}A${r} ${r} 0 ${f>.5?1:0} 1 ${x2} ${y2}" fill="none" stroke="${i.c}" stroke-width="${w}"/>`;a=b});
+ return `<svg viewBox="0 0 160 160" style="max-width:200px;margin:auto">${out}<text x="80" y="80" text-anchor="middle" style="fill:#e6ecf5;font-size:22px;font-weight:700">${center??tot}</text><text x="80" y="96" text-anchor="middle">total</text></svg>`+
+ `<div class="leg">${items.map(i=>`<span><i style="background:${i.c}"></i>${i.l} ${i.v}</span>`).join('')}</div>`}
+function gauge(v,max,color){const f=Math.min(1,v/max),r=80,cx=100,cy=100,a=Math.PI*(1-f);const x=cx+r*Math.cos(a),y=cy-r*Math.sin(a);
+ return `<div class="gauge-wrap"><svg viewBox="0 0 200 115"><path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="#22304a" stroke-width="16" stroke-linecap="round"/><path d="M20 100A80 80 0 0 1 ${x} ${y}" fill="none" stroke="${color}" stroke-width="16" stroke-linecap="round"/><text x="14" y="114">0</text><text x="172" y="114">${max}</text></svg><div class="big" style="color:${color}">${Math.round(v)}</div></div>`}
+function lineChart(labels,series,{h=180,fill=true,unit=''}={}){const W=520,P=28,max=Math.max(1,...series.flatMap(s=>s.d))*1.1,n=labels.length;
+ const X=i=>P+i*(W-P-8)/Math.max(1,n-1),Y=v=>h-18-(v/max)*(h-30);let o='';
+ for(let k=0;k<=3;k++){const v=max*k/3;o+=`<line x1="${P}" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" stroke="#22304a"/><text x="2" y="${Y(v)+3}">${Math.round(v)}</text>`}
+ series.forEach(s=>{const pts=s.d.map((v,i)=>[X(i),Y(v)]);const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+  if(fill)o+=`<path d="${path}L${X(n-1)} ${h-18}L${X(0)} ${h-18}Z" fill="${s.c}" opacity=".12"/>`;
+  o+=`<path d="${path}" fill="none" stroke="${s.c}" stroke-width="2"/>`;
+  pts.forEach((p,i)=>{o+=`<circle cx="${p[0]}" cy="${p[1]}" r="${n>45?0:3}" fill="${s.c}" data-tip="${s.n} · ${labels[i]}: ${Math.round(s.d[i]*10)/10}${unit}"/><rect x="${p[0]-4}" y="0" width="8" height="${h}" fill="transparent" data-tip="${s.n} · ${labels[i]}: ${Math.round(s.d[i]*10)/10}${unit}"/>`})});
+ const step=Math.ceil(n/8);labels.forEach((l,i)=>{if(i%step===0)o+=`<text x="${X(i)}" y="${h-4}" text-anchor="middle">${l}</text>`});
+ return `<svg viewBox="0 0 ${W} ${h}">${o}</svg>`+(series.length>1?`<div class="leg">${series.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join('')}</div>`:'')}
+function stacked(labels,stacks,{h=190}={}){const W=520,P=26,n=labels.length,tot=labels.map((_,i)=>sum(stacks.map(s=>s.d[i]))),max=Math.max(1,...tot)*1.1,bw=(W-P)/n*.7;let o='';
+ for(let k=0;k<=3;k++){const v=max*k/3,y=h-18-(v/max)*(h-30);o+=`<line x1="${P}" x2="${W}" y1="${y}" y2="${y}" stroke="#22304a"/><text x="2" y="${y+3}">${Math.round(v)}</text>`}
+ labels.forEach((l,i)=>{let y=h-18;const x=P+i*(W-P)/n+((W-P)/n-bw)/2;
+  stacks.forEach(s=>{const bh=s.d[i]/max*(h-30);y-=bh;if(bh>0)o+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${s.c}" rx="1" data-tip="${l} · ${s.n}: ${s.d[i]}"/>`});
+  if(i%Math.ceil(n/8)===0)o+=`<text x="${x+bw/2}" y="${h-4}" text-anchor="middle">${l}</text>`});
+ return `<svg viewBox="0 0 ${W} ${h}">${o}</svg><div class="leg">${stacks.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join('')}</div>`}
+function colBars(labels,vals,hi,{h=180,unit='',color=C.pri}={}){const W=520,P=26,n=labels.length,max=Math.max(1,...vals)*1.15,bw=(W-P)/n*.6;let o='';
+ vals.forEach((v,i)=>{const x=P+i*(W-P)/n+((W-P)/n-bw)/2,bh=v/max*(h-34);o+=`<rect x="${x}" y="${h-18-bh}" width="${bw}" height="${bh}" rx="4" fill="${i===hi?color:'#2b3d5e'}" data-tip="${labels[i]}: ${Math.round(v*10)/10}${unit}"/><text x="${x+bw/2}" y="${h-18-bh-4}" text-anchor="middle" style="fill:#e6ecf5">${Math.round(v*10)/10}</text><text x="${x+bw/2}" y="${h-4}" text-anchor="middle">${labels[i]}</text>`});
+ return `<svg viewBox="0 0 ${W} ${h}">${o}</svg>`}
+function hbars(items,color=C.pri,unit=''){const max=Math.max(1,...items.map(i=>i.v));
+ return items.map(i=>`<div class="hb"><div class="t"><span>${i.l}</span><span>${Math.round(i.v*10)/10}${unit}</span></div><div class="tr"><div style="width:${i.v/max*100}%;background:${i.c||color}"></div></div></div>`).join('')||'<div class="mut">Sem dados</div>'}
+function heatmap(m){const max=Math.max(1,...m.flat());const D=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+ let h='<div class="heat"><div class="h"></div>'+Array.from({length:24},(_,i)=>`<div class="h">${i%3===0?i:''}</div>`).join('');
+ m.forEach((row,d)=>{h+=`<div class="d">${D[d]}</div>`+row.map((v,i)=>`<div data-tip="${D[d]} ${i}h: ${v} incidentes" style="background:rgba(59,130,246,${.08+v/max*.92})"></div>`).join('')});return h+'</div>'}
+const kpi=(l,v,d,inv)=>`<div class="card kpi"><div class="l">${l}</div><b>${v}</b>${d==null?'':delta(d,inv)}</div>`;
+function delta(p,inv){if(!isFinite(p))return '<span class="delta flat">—</span>';const bad=inv?p<0:p>0,c=Math.abs(p)<1?'flat':bad?'up':'down';return `<span class="delta ${c}">${p>0?'▲':p<0?'▼':'■'} ${Math.abs(p).toFixed(0)}% vs período anterior</span>`}
+const pct=(a,b)=>b?((a-b)/b*100):(a?100:0);
+
+/* ---------- filtros ---------- */
+const state={src:'acronis',dc:'all',mode:'auto',user:null};
+function range(){const p=$('#period').value;let s,e=new Date(NOW);
+ if(p==='today')s=sod(NOW);else if(p==='7'||p==='30')s=sod(NOW-(+p-1)*DAY);
+ else if(p==='month')s=new Date(NOW.getFullYear(),NOW.getMonth(),1);
+ else if(p==='lastmonth'){s=new Date(NOW.getFullYear(),NOW.getMonth()-1,1);e=new Date(NOW.getFullYear(),NOW.getMonth(),0,23,59,59)}
+ else{s=$('#d1').value?new Date($('#d1').value+'T00:00'):sod(NOW-29*DAY);e=$('#d2').value?new Date($('#d2').value+'T23:59:59'):e}
+ const len=e-s,ps=new Date(s-len-1000),pe=new Date(s-1);return{s,e,ps,pe}}
+const inR=(t,a,b)=>t>=a&&t<=b;
+function dayLabels(s,e){const a=[];for(let d=sod(s);d<=e;d=new Date(+d+DAY))a.push(new Date(d));return a}
+function origem(r){const m=state.mode;if(m==='rt')return 'tempo real';if(m==='d1')return 'D-1 (até ontem)';return r.e>=sod(NOW)&&r.s<sod(NOW)?'misto (D-1 + tempo real hoje)':r.e>=sod(NOW)?'tempo real':'D-1'}
+
+/* ---------- dashboards ---------- */
+function viewAcronis(r){
+ const dcf=x=>state.dc==='all'||x.dc===state.dc;
+ const inc=AC.inc.filter(x=>dcf(x)&&inR(x.t,r.s,r.e)),prev=AC.inc.filter(x=>dcf(x)&&inR(x.t,r.ps,r.pe));
+ const dcs=state.dc==='all'?['br01','br02']:[state.dc];
+ const score=avg(dcs.map(d=>AC.score[d].at(-1).v)),scoreP=avg(dcs.map(d=>AC.score[d].at(-2).v));
+ const col=score>=700?C.ok:score>=450?C.media:C.critica,lvl=score>=700?'Excelente':score>=450?'Moderado':'Em risco';
+ const bk=AC.bk.filter(x=>dcf(x)&&inR(x.t,sod(r.s),r.e)),ok=sum(bk.map(x=>x.ok)),fail=sum(bk.map(x=>x.fail));
+ const days=dayLabels(r.s,r.e),byDay=(f)=>days.map(d=>inc.filter(x=>sod(x.t)-d===0&&f(x)).length);
+ const bySev=SEVS.map(s=>({l:s,v:inc.filter(x=>x.sev===s).length,c:C[s]}));
+ const types={};inc.forEach(x=>types[x.type]=(types[x.type]||0)+1);
+ const dev={};inc.forEach(x=>dev[x.dev]=(dev[x.dev]||0)+1);
+ const cli={};inc.forEach(x=>cli[x.client]=(cli[x.client]||0)+1);
+ const lab=days.map(fd),bl=days.length>45;
+ let L=lab,stk=SEVS.map(s=>({n:s,c:C[s],d:byDay(x=>x.sev===s)}));
+ if(bl){const w=[];for(let i=0;i<days.length;i+=7)w.push(i);L=w.map(i=>fd(days[i]));stk=stk.map(s=>({...s,d:w.map(i=>sum(s.d.slice(i,i+7)))}))}
+ return `
+ <div class="kpis">
+  ${kpi('Incidentes no período',inc.length,pct(inc.length,prev.length))}
+  ${kpi('Críticos',inc.filter(x=>x.sev==='critica').length,pct(inc.filter(x=>x.sev==='critica').length,prev.filter(x=>x.sev==='critica').length))}
+  ${kpi('Incidentes em aberto',inc.filter(x=>x.open).length,null)}
+  ${kpi('Sucesso de backup',(ok/Math.max(1,ok+fail)*100).toFixed(1)+'%',null)}
+  ${kpi('Dispositivos afetados',Object.keys(dev).length,null)}
+ </div>
+ <div class="g g3">
+  <div class="card"><h2>Cyber Fit Score</h2>${gauge(score,850,col)}<div style="text-align:center;margin-top:6px"><b style="color:${col}">${lvl}</b> <span class="delta ${score>=scoreP?'down':'up'}">${score>=scoreP?'▲':'▼'} ${Math.abs(score-scoreP).toFixed(0)} pts vs mês anterior</span></div></div>
+  <div class="card"><h2>Evolução do score (6 meses)</h2>${lineChart(AC.score[dcs[0]].map(x=>MES[x.m]),dcs.map((d,i)=>({n:d.toUpperCase(),c:[C.pri,C.cy][i],d:AC.score[d].map(x=>x.v)})),{h:170})}</div>
+  <div class="card"><h2>Score por categoria</h2>${hbars(CFCAT.map(([l,v])=>({l,v:v*100,c:v>.7?C.ok:v>.5?C.media:C.critica})),C.pri,'%')}</div>
+ </div>
+ <div class="g g21">
+  <div class="card"><h2>Incidentes ao longo do tempo ${bl?'(por semana)':''}</h2>${stacked(L,stk)}</div>
+  <div class="card"><h2>Por severidade</h2>${donut(bySev)}</div>
+ </div>
+ <div class="g g3">
+  <div class="card"><h2>Tipos de incidente</h2>${hbars(Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),C.pur)}</div>
+  <div class="card"><h2>Top dispositivos</h2>${hbars(Object.entries(dev).sort((a,b)=>b[1]-a[1]).slice(0,7).map(([l,v])=>({l,v})),C.alta)}</div>
+  <div class="card"><h2>Backups</h2>${donut([{l:'Sucesso',v:ok,c:C.ok},{l:'Falha',v:fail,c:C.critica}],(ok/Math.max(1,ok+fail)*100).toFixed(0)+'%')}</div>
+ </div>
+ <div class="card"><h2>Incidentes críticos recentes</h2><table><thead><tr><th>Quando</th><th>DC</th><th>Cliente</th><th>Dispositivo</th><th>Tipo</th><th>Status</th></tr></thead><tbody>${
+  inc.filter(x=>x.sev==='critica').sort((a,b)=>b.t-a.t).slice(0,8).map(x=>`<tr><td>${fd(x.t)} ${x.t.toTimeString().slice(0,5)}</td><td>${x.dc.toUpperCase()}</td><td>${x.client}</td><td>${x.dev}</td><td>${x.type}</td><td>${x.open?'<span class="b alta">aberto</span>':'resolvido'}</td></tr>`).join('')||'<tr><td colspan=6 class="mut">Sem incidentes críticos</td></tr>'}</tbody></table></div>`}
+
+function viewZoho(r){
+ const T=ZH.t,openNow=T.filter(t=>t.cl===null||t.cl>NOW);
+ const cr=T.filter(t=>inR(t.cr,r.s,r.e)),crP=T.filter(t=>inR(t.cr,r.ps,r.pe));
+ const opened=cr.filter(t=>!t.cl),agedays=t=>((t.cl||NOW)-t.cr)/DAY;
+ const avgOpen=avg(openNow.map(agedays)),avgRes=avg(cr.filter(t=>t.cl).map(agedays)),avgResP=avg(crP.filter(t=>t.cl).map(agedays));
+ const buckets=[['0-1 dia',0,1],['2-3',1,3],['4-7',3,7],['8-14',7,14],['15+',14,1e9]].map(([l,a,b])=>({l,v:openNow.filter(t=>{const d=agedays(t);return d>a&&d<=b||(a===0&&d<=1)}).length}));
+ const months=[];for(let i=5;i>=0;i--){const m0=new Date(NOW.getFullYear(),NOW.getMonth()-i,1),m1=new Date(NOW.getFullYear(),NOW.getMonth()-i+1,0,23,59,59);
+  months.push({l:MES[m0.getMonth()],n:T.filter(t=>inR(t.cr,m0,m1)).length,c:T.filter(t=>t.cl&&inR(t.cl,m0,m1)).length})}
+ const pr={};openNow.forEach(t=>pr[t.pri]=(pr[t.pri]||0)+1);
+ const cli={};cr.forEach(t=>cli[t.client]=(cli[t.client]||0)+1);
+ const days=dayLabels(r.s,r.e);
+ const crd=days.map(d=>cr.filter(t=>sod(t.cr)-d===0).length),cld=days.map(d=>T.filter(t=>t.cl&&sod(t.cl)-d===0).length);
+ const prC={Urgente:C.critica,Alta:C.alta,'Média':C.media,Baixa:C.pri};
+ const prevMonth=months.at(-2).n,curMonth=months.at(-1).n;
+ return `
+ <div class="kpis">
+  ${kpi('Chamados abertos agora',openNow.length,null)}
+  ${kpi('Média de dias em aberto',avgOpen.toFixed(1)+' d',null)}
+  ${kpi('Criados no período',cr.length,pct(cr.length,crP.length),true)}
+  ${kpi('Tempo médio de resolução',avgRes.toFixed(1)+' d',pct(avgRes,avgResP),false)}
+  ${kpi('Mês atual vs anterior',curMonth,pct(curMonth,prevMonth),true)}
+ </div>
+ <div class="g g2">
+  <div class="card"><h2>Chamados por mês (comparativo)</h2>${colBars(months.map(m=>m.l),months.map(m=>m.n),months.length-1,{color:C.cy})}<div class="mut">Barra destacada = mês atual (parcial).</div></div>
+  <div class="card"><h2>Criados × Fechados por mês</h2>${lineChart(months.map(m=>m.l),[{n:'Criados',c:C.cy,d:months.map(m=>m.n)},{n:'Fechados',c:C.ok,d:months.map(m=>m.c)}],{h:190})}</div>
+ </div>
+ <div class="g g3">
+  <div class="card"><h2>Envelhecimento dos abertos</h2>${colBars(buckets.map(b=>b.l),buckets.map(b=>b.v),4,{color:C.critica,h:170})}</div>
+  <div class="card"><h2>Abertos por prioridade</h2>${donut(Object.entries(pr).map(([l,v])=>({l,v,c:prC[l]})))}</div>
+  <div class="card"><h2>Top clientes (período)</h2>${hbars(Object.entries(cli).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),C.cy)}</div>
+ </div>
+ <div class="card" style="margin-bottom:12px"><h2>Criados × Fechados por dia</h2>${lineChart(days.map(fd),[{n:'Criados',c:C.cy,d:crd},{n:'Fechados',c:C.ok,d:cld}],{h:190})}</div>
+ <div class="card"><h2>Chamados abertos há mais tempo</h2><table><thead><tr><th>Ticket</th><th>Cliente</th><th>Assunto</th><th>Prioridade</th><th>Dias aberto</th></tr></thead><tbody>${
+  openNow.sort((a,b)=>a.cr-b.cr).slice(0,8).map(t=>`<tr><td>${t.id}</td><td>${t.client}</td><td>${t.subj}</td><td><span class="b ${t.pri==='Urgente'?'critica':t.pri==='Alta'?'alta':t.pri==='Média'?'media':'baixa'}">${t.pri}</span></td><td>${agedays(t).toFixed(0)} d</td></tr>`).join('')}</tbody></table></div>`}
+
+function viewZabbix(r){
+ const P=ZB.p.filter(p=>inR(p.st,r.s,r.e)),PP=ZB.p.filter(p=>inR(p.st,r.ps,r.pe)),D=P.filter(p=>p.down),DP=PP.filter(p=>p.down);
+ const spanMin=(r.e-r.s)/6e4,hosts=ZB.hosts.length;
+ const totDown=sum(D.map(p=>p.dur)),avgDown=avg(D.map(p=>p.dur)),avgDownP=avg(DP.map(p=>p.dur));
+ const avail=100-totDown/(spanMin*hosts)*100;
+ const bySev=SEVS.map(s=>({l:s,v:P.filter(p=>p.sev===s).length,c:C[s]}));
+ const h={},hd={};P.forEach(p=>h[p.h]=(h[p.h]||0)+1);D.forEach(p=>hd[p.h]=(hd[p.h]||0)+p.dur);
+ const days=dayLabels(r.s,r.e),dd=days.map(d=>{const x=D.filter(p=>sod(p.st)-d===0);return avg(x.map(p=>p.dur))}),dc=days.map(d=>P.filter(p=>sod(p.st)-d===0).length);
+ const hm=Array.from({length:7},()=>Array(24).fill(0));P.forEach(p=>hm[p.st.getDay()][p.st.getHours()]++);
+ const top=Object.entries(h).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ return `
+ <div class="kpis">
+  ${kpi('Média de downtime',fmtMin(avgDown),pct(avgDown,avgDownP))}
+  ${kpi('Downtime total',fmtMin(totDown),null)}
+  ${kpi('Disponibilidade',avail.toFixed(2)+'%',null)}
+  ${kpi('Incidentes',P.length,pct(P.length,PP.length))}
+  ${kpi('Hosts afetados',Object.keys(h).length+'/'+hosts,null)}
+ </div>
+ <div class="g g21">
+  <div class="card"><h2>Média de downtime por dia (min)</h2>${lineChart(days.map(fd),[{n:'Downtime médio',c:C.alta,d:dd}],{h:190,unit:' min'})}</div>
+  <div class="card"><h2>Por severidade</h2>${donut(bySev)}</div>
+ </div>
+ <div class="g g2">
+  <div class="card"><h2>Dispositivos com mais incidentes</h2>${hbars(top.map(([l,v])=>({l,v})),C.pur)}</div>
+  <div class="card"><h2>Dispositivos com maior downtime</h2>${hbars(Object.entries(hd).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([l,v])=>({l,v:v/60})),C.alta,' h')}</div>
+ </div>
+ <div class="g g12">
+  <div class="card"><h2>Incidentes por dia</h2>${colBars(days.length>20?days.filter((_,i)=>i%Math.ceil(days.length/14)===0).map(fd):days.map(fd),days.length>20?days.filter((_,i)=>i%Math.ceil(days.length/14)===0).map(d=>dc[days.indexOf(d)]):dc,-1,{h:180,color:C.pur})}</div>
+  <div class="card"><h2>Mapa de calor: dia da semana × hora</h2>${heatmap(hm)}</div>
+ </div>
+ <div class="card"><h2>Detalhe dos dispositivos</h2><table><thead><tr><th>Host</th><th>Incidentes</th><th>Downtime total</th><th>Downtime médio</th></tr></thead><tbody>${
+  top.map(([hn,n])=>{const x=D.filter(p=>p.h===hn);return `<tr><td>${hn}</td><td>${n}</td><td>${fmtMin(sum(x.map(p=>p.dur)))}</td><td>${fmtMin(avg(x.map(p=>p.dur)))}</td></tr>`}).join('')}</tbody></table></div>`}
+
+const TITLES={acronis:'🔒 Acronis · Segurança e backup',zoho:'🎫 Zoho Desk · Chamados',zabbix:'📡 Zabbix · Disponibilidade'};
+function render(){const r=range();$('#title').textContent=TITLES[state.src];
+ $('#dcbox').classList.toggle('hidden',state.src!=='acronis');
+ $$('.cust').forEach(e=>e.classList.toggle('hidden',$('#period').value!=='custom'));
+ $('#range').textContent=`${fd(r.s)} → ${fd(r.e)} · origem: ${origem(r)}`;
+ $('#content').innerHTML='<div class="skel"></div>';
+ setTimeout(()=>{$('#content').innerHTML=({acronis:viewAcronis,zoho:viewZoho,zabbix:viewZabbix})[state.src](r)},350)}
+
+/* ---------- login / sessão ---------- */
+const USERS={'admin@demo.com':{role:'admin',name:'Admin',src:['acronis','zoho','zabbix']},'analista@demo.com':{role:'analista',name:'Analista',src:['acronis','zabbix']}};
+const PASS='SenhaForte#2026',CODE='123456';let fails=0,lockUntil=0,left=0,tick=null,pending=null;
+const GUIDE={login:'<b>Etapa 1/3</b> Credenciais. Bloqueio após 5 erros.',forgot:'<b>Recuperação</b> Resposta igual exista ou não o e-mail.',mfa:'<b>Etapa 2/3</b> Código TOTP (demo: 123456).',app:'<b>Etapa 3/3</b> Sessão ativa (demo: expira em 3 min sem uso). O analista não vê o Zoho.'};
+function show(v){['login','forgot','mfa','app'].forEach(x=>$('#v-'+x).classList.toggle('hidden',x!==v));$('#guide').innerHTML=GUIDE[v]}
+const msg=(s,c,t)=>$(s).innerHTML=t?`<div class="msg ${c}">${t}</div>`:'';
+const toast=t=>{$('#toast').innerHTML=`<div class="msg ok">${t}</div>`;setTimeout(()=>$('#toast').innerHTML='',2200)};
+$('#eye').onclick=()=>{const p=$('#pass'),h=p.type==='password';p.type=h?'text':'password';$('#eye').textContent=h?'ocultar':'mostrar'};
+$('#f-login').onsubmit=e=>{e.preventDefault();
+ if(Date.now()<lockUntil)return msg('#login-msg','err',`Muitas tentativas. Tente em ${Math.ceil((lockUntil-Date.now())/1000)}s.`);
+ const em=$('#email').value.trim().toLowerCase(),u=USERS[em],b=$('#btn-login');b.disabled=true;b.textContent='Verificando...';
+ setTimeout(()=>{b.disabled=false;b.textContent='Entrar';
+  if(u&&$('#pass').value===PASS){fails=0;pending=u;$('#pass').value='';msg('#login-msg','','');mfaStart()}
+  else{fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0;msg('#login-msg','err','Conta bloqueada por 30s (demo).')}else msg('#login-msg','err',`E-mail ou senha inválidos. Restam ${5-fails} tentativa(s).`)}},500)};
+$('#forgot').onclick=()=>{show('forgot');msg('#forgot-msg','','')};
+$('#send-reset').onclick=()=>msg('#forgot-msg','ok','Se o e-mail estiver cadastrado, você receberá um link em instantes.');
+$$('[data-go]').forEach(b=>b.onclick=()=>{pending=null;show(b.dataset.go)});
+const cells=[];for(let i=0;i<6;i++){const x=document.createElement('input');x.maxLength=1;x.inputMode='numeric';$('#otp').appendChild(x);cells.push(x)}
+const code=()=>cells.map(c=>c.value).join(''),upd=()=>$('#btn-mfa').disabled=code().length!==6;
+cells.forEach((c,i)=>{c.oninput=()=>{c.value=c.value.replace(/\D/g,'');if(c.value&&cells[i+1])cells[i+1].focus();upd()};
+ c.onkeydown=e=>{if(e.key==='Backspace'&&!c.value&&cells[i-1])cells[i-1].focus()};
+ c.onpaste=e=>{e.preventDefault();[...(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6)].forEach((ch,k)=>cells[k].value=ch);upd()}});
+function mfaStart(){cells.forEach(c=>c.value='');upd();msg('#mfa-msg','','');show('mfa');cells[0].focus()}
+$('#btn-mfa').onclick=()=>{if(code()===CODE){state.user=pending;enter()}else{msg('#mfa-msg','err','Código inválido.');cells.forEach(c=>c.value='');cells[0].focus();upd()}};
+function enter(){show('app');$('#who').textContent=`${state.user.name} (${state.user.role})`;
+ $$('aside a').forEach(a=>a.classList.toggle('hidden',!state.user.src.includes(a.dataset.src)));
+ state.src=state.user.src[0];sel();render();startSession()}
+function sel(){$$('aside a').forEach(a=>a.classList.toggle('on',a.dataset.src===state.src))}
+$$('aside a').forEach(a=>a.onclick=()=>{state.src=a.dataset.src;sel();render()});
+$$('.seg').forEach(g=>g.onclick=e=>{const s=e.target.closest('span');if(!s)return;[...g.children].forEach(c=>c.classList.toggle('on',c===s));state[g.id]=s.dataset.v;render()});
+['period','d1','d2'].forEach(i=>$('#'+i).onchange=render);$('#refresh').onclick=()=>{render();toast('Dados atualizados')};
+function startSession(){left=180;clearInterval(tick);tick=setInterval(()=>{left--;$('#timer').textContent='Sessão: '+left+'s';$('#expire').classList.toggle('hidden',left>20);$('#sec').textContent=left;if(left<=0)logout('Sessão expirada por inatividade.')},1000)}
+['click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if(state.user&&left>20)left=180}));
+$('#renew').onclick=()=>{left=180;toast('Sessão renovada')};
+function logout(m){clearInterval(tick);state.user=null;show('login');msg('#login-msg',m?'warn':'',m||'')}
+$('#logout').onclick=()=>logout();
+show('login');
+</script>
+</body>
+</html>
